@@ -1,5 +1,20 @@
+locals {
+  elb_account_id = {
+    us-east-1 = "127311923021"
+  }
+  builtin_listeners = {
+    http_to_https = {
+      port = 80
+      protocol = "HTTP"
+      builtin_actions = ["redirect_to_https"]
+    }
+  }
+  selected_builtin_listeners = {for l in var.builtin_listeners : l => local.builtin_listeners[l]}
+}
+
 module "bucket" {
-  source = "github.com/ptonini/terraform-aws-s3-bucket?ref=v1"
+  source = "ptonini/s3-bucket/aws"
+  version = "~> 1.0.0"
   name = var.log_bucket_name
   create_policy = false
   create_role = false
@@ -23,9 +38,6 @@ module "bucket" {
       Resource = "arn:aws:s3:::${var.log_bucket_name}"
     }
   ]
-  providers = {
-    aws = aws
-  }
 }
 
 resource "aws_alb" "this" {
@@ -38,8 +50,9 @@ resource "aws_alb" "this" {
 }
 
 module "listener" {
-  source = "github.com/ptonini/terraform-aws-ec2-loadbalancer-listener?ref=v1"
-  for_each = local.listeners
+  source = "ptonini/ec2-loadbalancer-listener/aws"
+  version = "~> 1.0.0"
+  for_each = merge(var.listeners, local.selected_builtin_listeners)
   load_balancer = aws_alb.this
   port = try(each.value["port"], "443")
   protocol = try(each.value["protocol"], "HTTPS")
@@ -47,8 +60,4 @@ module "listener" {
   actions = try(each.value["actions"], {})
   builtin_actions = try(each.value["builtin_actions"], [])
   rules = try(each.value["rules"], {})
-  providers = {
-    aws = aws
-  }
 }
-
