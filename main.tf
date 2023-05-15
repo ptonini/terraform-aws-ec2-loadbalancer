@@ -18,6 +18,7 @@ module "bucket" {
   name = var.log_bucket_name
   create_policy = false
   create_role = false
+  force_destroy = var.log_bucket_force_destroy
   bucket_policy_statements = [
     {
       Effect = "Allow"
