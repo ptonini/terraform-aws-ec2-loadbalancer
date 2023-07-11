@@ -17,7 +17,7 @@ variable "listeners" {
 }
 
 variable "builtin_listeners" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
