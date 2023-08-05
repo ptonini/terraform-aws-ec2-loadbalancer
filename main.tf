@@ -12,7 +12,7 @@ locals {
   selected_builtin_listeners = { for l in var.builtin_listeners : l => local.builtin_listeners[l] }
 }
 
-module "bucket" {
+module "log_bucket" {
   source        = "ptonini/s3-bucket/aws"
   version       = "~> 1.3.0"
   name          = var.log_bucket_name
@@ -41,22 +41,23 @@ module "bucket" {
   ]
 }
 
-resource "aws_alb" "this" {
-  subnets         = var.subnet_ids
-  security_groups = var.security_group_ids
+resource "aws_lb" "this" {
+  subnets            = var.subnet_ids
+  security_groups    = var.security_group_ids
+  load_balancer_type = var.load_balancer_type
   access_logs {
-    bucket  = module.bucket.this.id
+    bucket  = module.log_bucket.this.id
     enabled = true
   }
 }
 
 module "listener" {
   source          = "ptonini/ec2-loadbalancer-listener/aws"
-  version         = "~> 1.0.0"
+  version         = "~> 2.0.0"
   for_each        = merge(var.listeners, local.selected_builtin_listeners)
-  load_balancer   = aws_alb.this
-  port            = try(each.value["port"], "443")
-  protocol        = try(each.value["protocol"], "HTTPS")
+  load_balancer   = aws_lb.this
+  port            = try(each.value["port"], null)
+  protocol        = try(each.value["protocol"], null)
   certificate     = try(each.value["certificate"], null)
   actions         = try(each.value["actions"], {})
   builtin_actions = try(each.value["builtin_actions"], [])

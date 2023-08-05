@@ -4,6 +4,10 @@ variable "log_bucket_force_destroy" {
   default = true
 }
 
+variable "load_balancer_type" {
+  default = "application"
+}
+
 variable "subnet_ids" {
   type = list(string)
 }
