@@ -1,3 +1,3 @@
 output "this" {
-  value = aws_alb.this
+  value = aws_lb.this
 }
