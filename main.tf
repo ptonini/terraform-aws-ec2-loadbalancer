@@ -49,6 +49,12 @@ resource "aws_lb" "this" {
     bucket  = module.log_bucket.this.id
     enabled = true
   }
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
+  }
 }
 
 module "listener" {
