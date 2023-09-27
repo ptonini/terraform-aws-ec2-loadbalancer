@@ -14,10 +14,9 @@ locals {
 
 module "log_bucket" {
   source        = "ptonini/s3-bucket/aws"
-  version       = "~> 1.3.0"
+  version       = "~> 2.0.0"
   name          = var.log_bucket_name
   create_policy = false
-  create_role   = false
   force_destroy = var.log_bucket_force_destroy
   bucket_policy_statements = [
     {
