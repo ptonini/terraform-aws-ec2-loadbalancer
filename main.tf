@@ -43,7 +43,8 @@ module "log_bucket" {
 }
 
 resource "aws_lb" "this" {
-  name = var.name
+  name               = var.name
+  internal           = var.internal
   subnets            = var.subnet_ids
   security_groups    = var.security_group_ids
   load_balancer_type = var.load_balancer_type

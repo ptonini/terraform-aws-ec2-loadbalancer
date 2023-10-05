@@ -2,6 +2,10 @@ variable "name" {
   default = null
 }
 
+variable "internal" {
+  default = false
+}
+
 variable "log_bucket_name" {}
 
 variable "log_bucket_force_destroy" {
