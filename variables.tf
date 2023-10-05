@@ -1,3 +1,7 @@
+variable "name" {
+  default = null
+}
+
 variable "log_bucket_name" {}
 
 variable "log_bucket_force_destroy" {
@@ -29,5 +33,3 @@ variable "builtin_listeners" {
 variable "region" {
   default = "us-east-1"
 }
-
-variable "account_id" {}

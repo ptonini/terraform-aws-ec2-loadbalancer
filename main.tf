@@ -12,6 +12,8 @@ locals {
   selected_builtin_listeners = { for l in var.builtin_listeners : l => local.builtin_listeners[l] }
 }
 
+data "aws_caller_identity" "current" {}
+
 module "log_bucket" {
   source        = "ptonini/s3-bucket/aws"
   version       = "~> 2.0.0"
@@ -23,7 +25,7 @@ module "log_bucket" {
       Effect    = "Allow"
       Principal = { AWS = "arn:aws:iam::${local.elb_account_id[var.region]}:root" }
       Action    = "s3:PutObject"
-      Resource  = "arn:aws:s3:::${var.log_bucket_name}/AWSLogs/${var.account_id}/*"
+      Resource  = "arn:aws:s3:::${var.log_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
     },
     {
       Effect    = "Allow"
@@ -41,6 +43,7 @@ module "log_bucket" {
 }
 
 resource "aws_lb" "this" {
+  name = var.name
   subnets            = var.subnet_ids
   security_groups    = var.security_group_ids
   load_balancer_type = var.load_balancer_type
