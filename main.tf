@@ -31,7 +31,7 @@ module "log_bucket" {
       Effect    = "Allow"
       Principal = { Service = "delivery.logs.amazonaws.com" }
       Action    = "s3:PutObject"
-      Resource  = "arn:aws:s3:::${var.log_bucket_name}/AWSLogs/${var.account_id}/*"
+      Resource  = "arn:aws:s3:::${var.log_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
     },
     {
       Effect    = "Allow"
