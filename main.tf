@@ -42,11 +42,18 @@ module "log_bucket" {
   ]
 }
 
+module "security_group" {
+  source        = "ptonini/security-group/aws"
+  version       = "~> 2.1.0"
+  vpc           = var.security_group.vpc
+  ingress_rules = merge(var.security_group.ingress_rules, { from_port = 0, protocol = "-1", self = true })
+}
+
 resource "aws_lb" "this" {
   name               = var.name
   internal           = var.internal
   subnets            = var.subnet_ids
-  security_groups    = var.security_group_ids
+  security_groups    = [module.security_group.this.id]
   load_balancer_type = var.load_balancer_type
   access_logs {
     bucket  = module.log_bucket.this.id
