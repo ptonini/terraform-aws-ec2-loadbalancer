@@ -43,7 +43,7 @@ variable "listeners" {
   type = map(object({
     port            = optional(number)
     protocol        = optional(string)
-    certificate     = optional(string)
+    certificate     = optional(any)
     actions         = optional(any, {})
     builtin_actions = optional(any, [])
     rules           = optional(any, {})
