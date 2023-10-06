@@ -40,7 +40,6 @@ variable "region" {
 
 variable "security_group" {
   type = object({
-    enabled = optional(bool, true)
     vpc = optional(object({
       id = string
     }))
@@ -52,7 +51,6 @@ variable "security_group" {
       ipv6_cidr_blocks = optional(set(string))
       prefix_list_ids  = optional(set(string))
       security_groups  = optional(set(string))
-    })), {})
+    })))
   })
-  default = { enabled = false }
 }
