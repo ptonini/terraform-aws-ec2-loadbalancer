@@ -6,12 +6,6 @@ variable "internal" {
   default = false
 }
 
-variable "log_bucket_name" {}
-
-variable "log_bucket_force_destroy" {
-  default = true
-}
-
 variable "load_balancer_type" {
   default = "application"
 }
@@ -20,22 +14,12 @@ variable "subnet_ids" {
   type = list(string)
 }
 
-variable "security_group_ids" {
-  type    = list(string)
-  default = []
-}
-
-variable "listeners" {
-  default = {}
-}
-
-variable "builtin_listeners" {
-  type    = list(string)
-  default = []
-}
-
-variable "region" {
-  default = "us-east-1"
+variable "log_bucket" {
+  type = object({
+    name          = string
+    region        = string
+    force_destroy = optional(bool, true)
+  })
 }
 
 variable "security_group" {
@@ -53,4 +37,20 @@ variable "security_group" {
       security_groups  = optional(set(string))
     })))
   })
+}
+
+variable "listeners" {
+  type = map(object({
+    port            = optional(number)
+    protocol        = optional(string)
+    certificate     = optional(string)
+    actions         = optional(any, {})
+    builtin_actions = optional(any, [])
+    rules           = optional(any, {})
+  }))
+  default = {}
+}
+
+variable "create_api_gateway_vpc_link" {
+  default = false
 }

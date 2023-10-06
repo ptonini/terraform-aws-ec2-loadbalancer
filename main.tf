@@ -2,14 +2,6 @@ locals {
   elb_account_id = {
     us-east-1 = "127311923021"
   }
-  builtin_listeners = {
-    http_to_https = {
-      port            = 80
-      protocol        = "HTTP"
-      builtin_actions = ["redirect_to_https"]
-    }
-  }
-  selected_builtin_listeners = { for l in var.builtin_listeners : l => local.builtin_listeners[l] }
 }
 
 data "aws_caller_identity" "current" {}
@@ -17,34 +9,35 @@ data "aws_caller_identity" "current" {}
 module "log_bucket" {
   source        = "ptonini/s3-bucket/aws"
   version       = "~> 2.0.0"
-  name          = var.log_bucket_name
+  name          = var.log_bucket.name
   create_policy = false
-  force_destroy = var.log_bucket_force_destroy
+  force_destroy = var.log_bucket.force_destroy
   bucket_policy_statements = [
     {
       Effect    = "Allow"
-      Principal = { AWS = "arn:aws:iam::${local.elb_account_id[var.region]}:root" }
+      Principal = { AWS = "arn:aws:iam::${local.elb_account_id[var.log_bucket.region]}:root" }
       Action    = "s3:PutObject"
-      Resource  = "arn:aws:s3:::${var.log_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+      Resource  = "arn:aws:s3:::${var.log_bucket.name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
     },
     {
       Effect    = "Allow"
       Principal = { Service = "delivery.logs.amazonaws.com" }
       Action    = "s3:PutObject"
-      Resource  = "arn:aws:s3:::${var.log_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+      Resource  = "arn:aws:s3:::${var.log_bucket.name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
     },
     {
       Effect    = "Allow"
       Principal = { Service = "delivery.logs.amazonaws.com" }
       Action    = "s3:GetBucketAcl"
-      Resource  = "arn:aws:s3:::${var.log_bucket_name}"
+      Resource  = "arn:aws:s3:::${var.log_bucket.name}"
     }
   ]
 }
 
 module "security_group" {
   source        = "ptonini/security-group/aws"
-  version       = "~> 2.1.0"
+  version       = "~> 2.2.0"
+  name          = "api-gtw-${var.name}"
   vpc           = var.security_group.vpc
   ingress_rules = merge(var.security_group.ingress_rules, { self = { from_port = 0, protocol = "-1", self = true } })
 }
@@ -70,12 +63,18 @@ resource "aws_lb" "this" {
 module "listener" {
   source          = "ptonini/ec2-loadbalancer-listener/aws"
   version         = "~> 2.0.0"
-  for_each        = merge(var.listeners, local.selected_builtin_listeners)
+  for_each        = var.listeners
   load_balancer   = aws_lb.this
-  port            = try(each.value["port"], null)
-  protocol        = try(each.value["protocol"], null)
-  certificate     = try(each.value["certificate"], null)
-  actions         = try(each.value["actions"], {})
-  builtin_actions = try(each.value["builtin_actions"], [])
-  rules           = try(each.value["rules"], {})
+  port            = each.value.port
+  protocol        = each.value.protocol
+  certificate     = each.value.certificate
+  actions         = each.value.actions
+  builtin_actions = each.value.builtin_actions
+  rules           = each.value.rules
+}
+
+resource "aws_api_gateway_vpc_link" "this" {
+  count = var.create_api_gateway_vpc_link ? 1 : 0
+  name        = var.name
+  target_arns = [aws_lb.this.arn]
 }
