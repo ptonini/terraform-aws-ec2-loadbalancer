@@ -39,6 +39,11 @@ variable "security_group" {
   })
 }
 
+variable "additional_security_groups" {
+  type    = set(string)
+  default = []
+}
+
 variable "listeners" {
   type = map(object({
     port            = optional(number)

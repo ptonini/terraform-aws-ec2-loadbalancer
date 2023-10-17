@@ -46,7 +46,7 @@ resource "aws_lb" "this" {
   name               = var.name
   internal           = var.internal
   subnets            = var.subnet_ids
-  security_groups    = [module.security_group.this.id]
+  security_groups    = concat([module.security_group.this.id], var.additional_security_groups)
   load_balancer_type = var.load_balancer_type
   access_logs {
     bucket  = module.log_bucket.this.id
@@ -74,7 +74,7 @@ module "listener" {
 }
 
 resource "aws_api_gateway_vpc_link" "this" {
-  count = var.create_api_gateway_vpc_link ? 1 : 0
+  count       = var.create_api_gateway_vpc_link ? 1 : 0
   name        = var.name
   target_arns = [aws_lb.this.arn]
 }
