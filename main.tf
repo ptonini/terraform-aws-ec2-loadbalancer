@@ -36,17 +36,19 @@ module "log_bucket" {
 
 module "security_group" {
   source        = "ptonini/security-group/aws"
-  version       = "~> 2.2.0"
-  name          = "api-gtw-${var.name}"
+  version       = "~> 3.1.0"
+  count         = var.security_group == null ? 0 : 1
+  name          = "lb-${var.name}"
   vpc           = var.security_group.vpc
-  ingress_rules = merge(var.security_group.ingress_rules, { self = { from_port = 0, protocol = "-1", self = true } })
+  ingress_rules = var.security_group.ingress_rules
+  egress_rules  = var.security_group.egress_rules
 }
 
 resource "aws_lb" "this" {
   name               = var.name
   internal           = var.internal
   subnets            = var.subnet_ids
-  security_groups    = concat([module.security_group.this.id], var.additional_security_groups)
+  security_groups    = concat(var.security_group == null ? [] : [module.security_group[0].this.id], var.additional_security_groups)
   load_balancer_type = var.load_balancer_type
   access_logs {
     bucket  = module.log_bucket.this.id
@@ -61,16 +63,15 @@ resource "aws_lb" "this" {
 }
 
 module "listener" {
-  source          = "ptonini/ec2-loadbalancer-listener/aws"
-  version         = "~> 2.0.0"
-  for_each        = var.listeners
-  load_balancer   = aws_lb.this
-  port            = each.value.port
-  protocol        = each.value.protocol
-  certificate     = each.value.certificate
-  actions         = each.value.actions
-  builtin_actions = each.value.builtin_actions
-  rules           = each.value.rules
+  source        = "ptonini/ec2-loadbalancer-listener/aws"
+  version       = "~> 2.0.0"
+  for_each      = var.listeners
+  load_balancer = aws_lb.this
+  port          = each.value.port
+  protocol      = each.value.protocol
+  certificate   = each.value.certificate
+  actions       = each.value.actions
+  rules         = each.value.rules
 }
 
 resource "aws_api_gateway_vpc_link" "this" {

@@ -28,15 +28,25 @@ variable "security_group" {
       id = string
     }))
     ingress_rules = optional(map(object({
-      from_port        = number
-      to_port          = optional(number)
-      protocol         = optional(string)
-      cidr_blocks      = optional(set(string))
-      ipv6_cidr_blocks = optional(set(string))
-      prefix_list_ids  = optional(set(string))
-      security_groups  = optional(set(string))
+      from_port                    = number
+      to_port                      = optional(number)
+      ip_protocol                  = optional(string, "tcp")
+      cidr_ipv4                    = optional(string)
+      cidr_ipv6                    = optional(string)
+      prefix_list_id               = optional(string)
+      referenced_security_group_id = optional(string)
     })))
+    egress_rules = optional(map(object({
+      from_port                    = number
+      to_port                      = optional(number)
+      ip_protocol                  = optional(string, "tcp")
+      cidr_ipv4                    = optional(string)
+      cidr_ipv6                    = optional(string)
+      prefix_list_id               = optional(string)
+      referenced_security_group_id = optional(string)
+    })), { self = { from_port = 0, ip_protocol = -1, referenced_security_group_id = "self" } })
   })
+  default = null
 }
 
 variable "additional_security_groups" {
@@ -46,12 +56,11 @@ variable "additional_security_groups" {
 
 variable "listeners" {
   type = map(object({
-    port            = optional(number)
-    protocol        = optional(string)
-    certificate     = optional(any)
-    actions         = optional(any, {})
-    builtin_actions = optional(any, [])
-    rules           = optional(any, {})
+    port        = optional(number)
+    protocol    = optional(string)
+    certificate = optional(any)
+    actions     = optional(any, {})
+    rules       = optional(any, {})
   }))
   default = {}
 }
