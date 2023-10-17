@@ -44,7 +44,7 @@ variable "security_group" {
       cidr_ipv6                    = optional(string)
       prefix_list_id               = optional(string)
       referenced_security_group_id = optional(string)
-    })), { self = { from_port = 0, ip_protocol = -1, cidr_ipv4 = "0.0.0.0/0" } })
+    })), { all = { from_port = 0, ip_protocol = -1, cidr_ipv4 = "0.0.0.0/0" } })
   })
   default = null
 }
