@@ -40,7 +40,7 @@ variable "security_group" {
 }
 
 variable "additional_security_groups" {
-  type    = set(string)
+  type    = list(string)
   default = []
 }
 
