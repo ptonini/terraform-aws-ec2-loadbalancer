@@ -56,11 +56,13 @@ variable "additional_security_groups" {
 
 variable "listeners" {
   type = map(object({
-    port        = optional(number)
-    protocol    = optional(string)
-    certificate = optional(any)
-    actions     = optional(any, {})
-    rules       = optional(any, {})
+    port     = optional(number)
+    protocol = optional(string)
+    certificate = optional(object({
+      arn = optional(string)
+    }))
+    actions = optional(any, {})
+    rules   = optional(any, {})
   }))
   default = {}
 }

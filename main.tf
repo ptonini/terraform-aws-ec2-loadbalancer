@@ -56,7 +56,9 @@ resource "aws_lb" "this" {
   }
   lifecycle {
     ignore_changes = [
-      tags,
+      tags["business_unit"],
+      tags["product"],
+      tags["env"],
       tags_all
     ]
   }
