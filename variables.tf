@@ -14,12 +14,20 @@ variable "subnet_ids" {
   type = list(string)
 }
 
+variable "access_logs" {
+  type = object({
+    enabled = optional(bool, true)
+    bucket  = optional(string)
+  })
+  default = {}
+}
+
 variable "log_bucket" {
   type = object({
     name          = string
-    region        = string
     force_destroy = optional(bool, true)
   })
+  default = null
 }
 
 variable "security_group" {
