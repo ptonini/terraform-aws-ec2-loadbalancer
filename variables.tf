@@ -69,8 +69,8 @@ variable "listeners" {
     certificate = optional(object({
       arn = optional(string)
     }))
-    actions = optional(any, {})
-    rules   = optional(any, {})
+    actions = optional(map(any), {})
+    rules   = optional(map(any), {})
   }))
   default = {}
 }

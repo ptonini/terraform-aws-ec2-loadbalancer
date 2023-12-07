@@ -74,7 +74,7 @@ module "security_group" {
 
 module "listener" {
   source        = "ptonini/ec2-loadbalancer-listener/aws"
-  version       = "~> 2.0.0"
+  version       = "~> 2.1.0"
   for_each      = var.listeners
   load_balancer = aws_lb.this
   port          = each.value.port
