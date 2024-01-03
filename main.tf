@@ -13,7 +13,7 @@ resource "aws_lb" "this" {
     for_each = var.access_logs[*]
     content {
       enabled = access_logs.value.enabled
-      bucket  = coalesce(access_logs.value.bucket, module.log_bucket.this.id)
+      bucket  = coalesce(access_logs.value.bucket, module.log_bucket[0].this.id)
     }
   }
 
