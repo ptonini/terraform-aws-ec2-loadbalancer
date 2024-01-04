@@ -8,6 +8,7 @@ variable "internal" {
 
 variable "load_balancer_type" {
   default = "application"
+  nullable = false
 }
 
 variable "subnet_ids" {
@@ -20,6 +21,7 @@ variable "access_logs" {
     bucket  = optional(string)
   })
   default = {}
+  nullable = false
 }
 
 variable "log_bucket" {
@@ -60,6 +62,7 @@ variable "security_group" {
 variable "additional_security_groups" {
   type    = list(string)
   default = []
+  nullable = false
 }
 
 variable "listeners" {
@@ -69,12 +72,14 @@ variable "listeners" {
     certificate = optional(object({
       arn = optional(string)
     }))
-    actions = optional(map(any), {})
-    rules   = optional(map(any), {})
+    default_actions = optional(map(any))
+    rules   = optional(map(any))
   }))
   default = {}
+  nullable = false
 }
 
 variable "create_api_gateway_vpc_link" {
   default = false
+  nullable = false
 }

@@ -73,14 +73,14 @@ module "security_group" {
 }
 
 module "listener" {
-  source        = "ptonini/ec2-loadbalancer-listener/aws"
-  version       = "~> 2.1.0"
-  for_each      = var.listeners
-  load_balancer = aws_lb.this
-  port          = each.value.port
-  protocol      = each.value.protocol
-  certificate   = each.value.certificate
-  actions       = each.value.actions
-  rules         = each.value.rules
+  source          = "ptonini/ec2-loadbalancer-listener/aws"
+  version         = "~> 2.1.0"
+  for_each        = var.listeners
+  load_balancer   = aws_lb.this
+  port            = each.value.port
+  protocol        = each.value.protocol
+  certificate     = each.value.certificate
+  default_actions = each.value.default_actions
+  rules           = each.value.rules
 }
 
